@@ -114,7 +114,7 @@ class Segment:
 
 
 class EventQueue:
-    """ Implemented as AVLTree. """
+    """ Implemented as AVLTree instead of MinHeap. """
 
     def __init__(self):
         self.tree = AVLTree()
@@ -135,16 +135,35 @@ class EventQueue:
 
 
 class SweepLineStatus:
+    """ Implemented with AVLTree. """
+
     def __init__(self):
         self.tree = AVLTree()
         self.size = 0
 
-    def insert(self, item):
-        self.tree.insert(item)
+    def add_new_segment(self, segment: Segment):
+        self.tree.insert(segment)
         self.size += 1
 
-    def predecessor(self, item):
-        self.tree.predecessor(item)
+    def is_intersects_with_upper(self, segment: Segment):
+        current = self.tree.find(segment)
+        assert (current is not None)
+        pred = self.tree.predecessor(current)
+        if pred is None:
+            return False
+        else:
+            point = calculate_intersection_point(pred.key, segment)
+            if point is None:
+                return False
+            return True
+
+    def reach_intersection_of(self, upper: Segment, lower: Segment):
+        upper_node = self.tree.find(upper)
+        lower_node = self.tree.find(lower)
+
+        temp_key = upper_node.key
+        upper_node.key = lower_node.key
+        lower_node.key = temp_key
 
 
 def calculate_triangle_area(p1: Point, p2: Point, p3: Point) -> float:
@@ -192,17 +211,12 @@ def plane_sweep(segments: set) -> int:
     sweep_line_status = []
 
     for segment in segments:
-        start_tup = (segment.start, segment)
-        end_tup = (segment.end, segment)
-
-        events.insert_event(start_tup)
-        events.insert_event(end_tup)
+        events.insert_event(segment.start)
+        events.insert_event(segment.end)
 
     # A value to return
     intersections_num = 0
 
-    # Maintain counter to avoid checking length every time
-    events_size = len(events)
     #
     # for e in events:
     #     print(e)

@@ -1,4 +1,5 @@
 """ AVL Tree implementation. """
+from typing import Optional
 
 
 class Node:
@@ -34,10 +35,10 @@ class AVLTree:
             # print("Inserted key [" + str(key) + "]")
 
         elif key < tree.key:
-            self.node.left.insert_event(key)
+            self.node.left.insert(key)
 
         elif key > tree.key:
-            self.node.right.insert_event(key)
+            self.node.right.insert(key)
 
         else:
             print("Key [" + str(key) + "] already in tree.")
@@ -76,17 +77,30 @@ class AVLTree:
             return
 
     def min(self):
+        """ Returns a smallest one key in a tree. """
         if self.node is None:
             return None
         else:
             if self.node.left.node is None:
                 return self.node.key
             else:
-                return self.node.left.get_nearest_event()
+                return self.node.left.min()
+
+    def find(self, key) -> Optional[Node]:
+        """ Returns a node of current key, if exist, None otherwise. """
+        if self.node is None:
+            return None
+        else:
+            if self.node.key == key:
+                return self.node
+            elif key < self.node.key:
+                return self.node.left.find(key)
+            else:
+                return self.node.right.find(key)
 
     def predecessor(self, node):
         """
-        Find the biggest valued node in LEFT child
+        Returns the predecessor of a given node - max in left subtree
         """
         node = node.left.node
         if node is not None:
@@ -99,7 +113,7 @@ class AVLTree:
 
     def successor(self, node):
         """
-        Find the smallest valued node in RIGHT child
+        Returns the successor node of a given node - min in right subtree
         """
         node = node.right.node
         if node is not None:  # just a sanity check

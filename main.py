@@ -56,20 +56,37 @@ def main():
     # q.remove_min()
     # print(q.min())
     #
-    # t = AVLTree()
-    # print('Min: ' + str(t.min()))
-    #
-    # t.insert(p4)
-    # print('Min: ' + str(t.min()))
-    #
-    # t.insert(p3)
-    # print('Min: ' + str(t.min()))
-    #
-    # t.insert(p1)
-    # print('Min: ' + str(t.min()))
-    #
-    # t.insert(p2)
-    # print('Min: ' + str(t.min()))
+    t = AVLTree()
+    print('Min: ' + str(t.min()))
+
+    assert (t.find(p1) is None)
+    assert (t.find(p2) is None)
+    assert (t.find(p3) is None)
+    assert (t.find(p4) is None)
+
+
+    t.insert(p4)
+    print('Min: ' + str(t.min()))
+    assert (t.find(p4) is not None)
+
+
+    t.insert(p3)
+    print('Min: ' + str(t.min()))
+    assert (t.find(p3) is not None)
+
+    t.insert(p1)
+    print('Min: ' + str(t.min()))
+    assert (t.find(p1) is not None)
+
+
+    t.insert(p2)
+    print('Min: ' + str(t.min()))
+
+    assert (t.find(p1) is not None)
+    assert (t.find(p2) is not None)
+    assert (t.find(p3) is not None)
+    assert (t.find(p4) is not None)
+
 
 
 if __name__ == "__main__":
