@@ -10,6 +10,7 @@ class Node:
         self.key = key
         self.left = None
         self.right = None
+        self.parent = None
 
 
 class AVLTree:
@@ -23,29 +24,33 @@ class AVLTree:
 
     """ Functions to be used from outside """
 
-    def insert(self, key):
+    def insert(self, key, parent=None) -> bool:
         tree = self.node
-
-        new_node = Node(key)
-
         if tree is None:
+            new_node = Node(key)
             self.node = new_node
             self.node.left = AVLTree()
             self.node.right = AVLTree()
             # print("Inserted key [" + str(key) + "]")
+            if parent:
+                self.node.parent = parent
+            res = True
 
         elif key < tree.key:
-            self.node.left.insert(key)
+            res = self.node.left.insert(key, self.node)
 
         elif key > tree.key:
-            self.node.right.insert(key)
+            res = self.node.right.insert(key, self.node)
 
         else:
-            print("Key [" + str(key) + "] already in tree.")
+            # print("Key [" + str(key) + "] already in tree.")
+            res = False
 
         self.make_balanced()
+        return res
 
-    def delete(self, key):
+    def delete(self, key) -> bool:
+        res = False
         if self.node is not None:
             if self.node.key == key:
                 # print("Deleting ... " + str(key))
@@ -53,12 +58,15 @@ class AVLTree:
                     self.node = None  # leaves can be killed at will
                 # if only one subtree, take that
                 elif self.node.left.node is None:
+                    parent = self.node.parent
                     self.node = self.node.right.node
+                    self.node.parent = parent
                 elif self.node.right.node is None:
+                    parent = self.node.parent
                     self.node = self.node.left.node
-
-                # Both children present
+                    self.node.parent = parent
                 else:
+                    # Both children present
                     replacement = self.successor(self.node)
                     if replacement is not None:  # sanity check
                         # print("Found replacement for " + str(key) + " -> " + str(replacement.key))
@@ -66,15 +74,17 @@ class AVLTree:
                         # replaced. Now delete the key from right child
                         self.node.right.delete(replacement.key)
                 self.make_balanced()
-                return
+                return True
             elif key < self.node.key:
-                self.node.left.delete(key)
+                res = self.node.left.delete(key)
             elif key > self.node.key:
-                self.node.right.delete(key)
+                res = self.node.right.delete(key)
 
             self.make_balanced()
+            return res
         else:
-            return
+            # No one node to delete
+            return False
 
     def min(self):
         """ Returns a smallest one key in a tree. """
@@ -98,20 +108,27 @@ class AVLTree:
             else:
                 return self.node.right.find(key)
 
-    def predecessor(self, node):
+    def predecessor(self, current_node) -> Optional[Node]:
         """
-        Returns the predecessor of a given node - max in left subtree
+        Returns the predecessor of a given node - max in left subtree.
+        If left subtree is empty, predecessor is a parent.
+        If there's no parent - there's no predecessor.
         """
-        node = node.left.node
+        node = current_node.left.node
         if node is not None:
             while node.right is not None:
                 if node.right.node is None:
                     return node
                 else:
                     node = node.right.node
-        return node
+        else:
+            # Left subtree is empty
+            if current_node.parent is not None:
+                if current_node.parent.right.node == current_node:
+                    return current_node.parent
+        return None
 
-    def successor(self, node):
+    def successor(self, node) -> Optional[Node]:
         """
         Returns the successor node of a given node - min in right subtree
         """
@@ -131,14 +148,14 @@ class AVLTree:
             return []
 
         inlist = []
-        l = self.node.left.inorder()
-        for i in l:
+        inorder = self.node.left.inorder()
+        for i in inorder:
             inlist.append(i)
 
         inlist.append(self.node.key)
 
-        l = self.node.right.inorder()
-        for i in l:
+        inorder = self.node.right.inorder()
+        for i in inorder:
             inlist.append(i)
 
         return inlist
@@ -186,9 +203,17 @@ class AVLTree:
         B = self.node.left.node
         T = B.right.node
 
+        self_parent = self.node.parent
+
         self.node = B
         B.right.node = A
         A.left.node = T
+
+        self.node.parent = self_parent
+        if B.right.node is not None:
+            B.right.node.parent = self.node
+        if A.left.node is not None:
+            A.left.node.parent = A
 
     def rotate_left(self):
         # print('Rotating ' + str(self.node.key) + ' left')
@@ -196,9 +221,17 @@ class AVLTree:
         B = self.node.right.node
         T = B.left.node
 
+        self_parent = self.node.parent
+
         self.node = B
         B.left.node = A
         A.right.node = T
+
+        self.node.parent = self_parent
+        if B.left.node is not None:
+            B.left.node.parent = self.node
+        if A.right.node is not None:
+            A.right.node.parent = A
 
     def update_heights(self, recurse=True):
         if self.node is not None:
