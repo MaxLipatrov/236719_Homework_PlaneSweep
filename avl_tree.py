@@ -1,4 +1,7 @@
-""" AVL Tree implementation. """
+""" Created by Maxim Lipatrov at 7-12-2019
+maxim-li@campus.technion.ac.il
+AVL Tree implementation. """
+
 from typing import Optional
 
 
