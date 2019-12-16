@@ -323,7 +323,8 @@ def plane_sweep(segments: set) -> int:
                 new_upper = second
                 new_lower = first
 
-            Segment.x_coordinate_comparator -= 0.01
+            # Adjust numerical delta to avoid collisions in comparison
+            Segment.x_coordinate_comparator -= 0.000001
 
             # Segments are still not swapped in status!
             upper_to_check = sweep_line_status.get_above_neighbor(new_lower)
