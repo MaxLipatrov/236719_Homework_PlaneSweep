@@ -1,6 +1,4 @@
-""" Created by Maxim Lipatrov at 7-12-2019
-maxim-li@campus.technion.ac.il
-AVL Tree implementation. """
+""" AVL Tree implementation """
 
 from typing import Optional
 
@@ -131,11 +129,11 @@ class AVLTree:
                     return current_node.parent
         return None
 
-    def successor(self, node) -> Optional[Node]:
+    def successor(self, current_node) -> Optional[Node]:
         """
         Returns the successor node of a given node - min in right subtree
         """
-        node = node.right.node
+        node = current_node.right.node
         if node is not None:  # just a sanity check
 
             while node.left is not None:
@@ -144,7 +142,12 @@ class AVLTree:
                     return node
                 else:
                     node = node.left.node
-        return node
+        else:
+            # Right subtree is empty
+            if current_node.parent is not None:
+                if current_node.parent.left.node == current_node:
+                    return current_node.parent
+        return None
 
     def inorder(self):
         if self.node is None:
