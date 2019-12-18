@@ -23,7 +23,11 @@ def parse_input(input_file_name: str) -> list:
             num_segments = int(in_file.readline())
             current_case = set()
             for j in range(num_segments):
-                coordinates = in_file.readline().split(" ")
+                coordinates = in_file.readline().split(' ')
+                coordinates = [x.strip('\n') for x in coordinates]
+                coordinates = [x.strip('\t') for x in coordinates]
+                coordinates = [x for x in coordinates if x != '']
+                # print(coordinates)
                 assert (len(coordinates) == 4)
                 first_point = Point(float(coordinates[0]), float(coordinates[1]))
                 second_point = Point(float(coordinates[2]), float(coordinates[3]))
